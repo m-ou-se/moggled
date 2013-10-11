@@ -2,7 +2,7 @@ import std.algorithm;
 
 unittest {
 	Normalized!(byte) b; // Behaves like a float, but stores -1..1 in a byte as -127..127.
-	Normalized!(uint) u; // Behaves like a double, but stores 0..1 in a uint as 0..int.max.
+	Normalized!(uint) u; // Stores 0..1 in a uint as 0..uint.max.
 
 	// Just use them as if they are floats.
 	b = 0.5;
