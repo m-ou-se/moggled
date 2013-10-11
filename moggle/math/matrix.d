@@ -128,6 +128,21 @@ struct Matrix(T, size_t N, size_t M = N) {
 	alias N height;
 	alias M width;
 
+	string toString() const {
+		string s = "[";
+		foreach (i; 0 .. N) {
+			if (i) s ~= ";";
+			foreach (j; 0 .. M) {
+				if (i || j) s ~= " ";
+				s ~= text(this[i, j]);
+			}
+		}
+		return s ~= "]";
+	}
+
+pure:
+nothrow:
+
 	this(const(T)[] v ...) { values = v; }
 
 	@property static Matrix zero() {
@@ -270,7 +285,7 @@ struct Matrix(T, size_t N, size_t M = N) {
 
 	/// M+=M, M-=M
 	ref Matrix opOpAssign(string op, T2)(in Matrix!(T2, N, M) m) if (op == "+" || op == "-") {
-		mixin("values[] " ~ op ~ "= m.values[];");
+		foreach (i; 0 .. N*M) mixin("this[i] " ~ op ~ "= m[i];");
 		return this;
 	}
 
@@ -337,17 +352,6 @@ struct Matrix(T, size_t N, size_t M = N) {
 		return this;
 	}
 
-	string toString() const {
-		string s = "[";
-		foreach (i; 0 .. N) {
-			if (i) s ~= ";";
-			foreach (j; 0 .. M) {
-				if (i || j) s ~= " ";
-				s ~= to!string(this[i, j]);
-			}
-		}
-		return s ~= "]";
-	}
 }
 
 template Vector(T, size_t N) {
