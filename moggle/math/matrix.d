@@ -15,7 +15,7 @@ unittest {
 	assert(m[1, 1] == 1);
 	assert(m[0, 2] == 2);
 
-	// An array is default-initialied to just N*M default-initialized Ts.
+	// A matrix is default-initialied to just N*M default-initialized Ts.
 	{
 		Matrix!(float, 3, 3) a;
 		Matrix!(int, 2, 3) b;
@@ -23,7 +23,7 @@ unittest {
 		assert(b[2] == 0);
 	}
 
-	// .zero gives a zero-initialized matrix.
+	// .zero gives a zero-filled matrix.
 	{
 		auto a = Matrix!(float, 3, 3).zero;
 		assert(a[3] == 0);
@@ -32,7 +32,7 @@ unittest {
 	// For square matrices, .identity gives the identity matrix.
 	{
 		auto a = Matrix!(float, 2, 2).identity;
-		// The identity is also accessable as a.identity.
+		// The identity is also accessible as a.identity.
 		assert(a[0, 0] == 1);
 		assert(a[0, 1] == 0);
 	}
@@ -59,10 +59,10 @@ unittest {
 		assert(a[] == [1, 3, 2, 4]);
 	}
 
-	// Vectors are just matrices with a width of 1. Vector!(T, N) is really just an alias.
+	// Vectors are just matrices with a width of 1. Vector!(T, N) is just an alias.
 	assert(is(Vector!(float, 3) == Matrix!(float, 3, 1)));
 
-	// .column(i) and .row(i) give you a specific row or column as N*1 and 1*M matrix.
+	// .column(i) and .row(i) give you a specific row or column as N*1 or 1*M matrix, respectively.
 	assert(m.row(0)[] == [0, 0, 4]);
 	assert(m.column(2)[] == [4, 0]);
 	assert(m.row(0).height == 1);
@@ -74,7 +74,7 @@ unittest {
 	assert(m.without_row_column(1, 1) == Matrix!(float, 1, 2)(0, 4));
 
 	// For (column) vectors, .length gives the Euclidian length,
-	// .normalized and .normalize works you'd expect.
+	// .normalized and .normalize do what you want.
 	Vector!(float, 2) v = [3, 4];
 	assert(v.length == 5);
 	assert(v.normalized == Vector!(float, 2)(0.6, 0.8));
@@ -82,7 +82,7 @@ unittest {
 	assert(v.length == 1);
 
 	// For square matrices, there is .determinant, .cofactor(row, column),
-	// .cofactor_matrix, .adjugate, .inverse and .invert().
+	// .cofactor_matrix, .adjugate, .inverse and .invert.
 	Matrix!(float, 3, 3) x = [
 		1, 2, 3,
 		0, 6, 1,
@@ -101,7 +101,6 @@ unittest {
 	auto y = x.without_row(2) + m;
 	y -= -m * 2;
 	y /= 0.5;
-	import std.stdio;
 	assert(y[1] == -6);
 
 	// Matrix multiplication is done with * and *=.
