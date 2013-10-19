@@ -1,6 +1,7 @@
 import std.conv;
 import std.traits;
 import std.math;
+import std.algorithm;
 
 unittest {
 	// Matrix!(T=ElementType, N=Height, M=Width) can be initialized
@@ -62,6 +63,17 @@ unittest {
 	// Vectors are just matrices with a width of 1. Vector!(T, N) is just an alias.
 	assert(is(Vector!(float, 3) == Matrix!(float, 3, 1)));
 
+	// For vectors, [i..j] can be used to get/set/modify a part of the vector.
+	auto a = Vector!(float, 4).zero;
+	a[0..2] = 1;
+	a[1..3] += 2;
+	assert(a[0..3] == [1, 3, 2]);
+
+	// Vectors of different sizes can be used together, they're padded with zeros.
+	a += Vector!(float, 2)(1, 2);
+	assert(a[] == [2, 5, 2, 0]);
+	assert((a - Vector!(float, 5)(0, 0, 0, 0, 1))[] == [2, 5, 2, 0, -1]);
+
 	// .column(i) and .row(i) give you a specific row or column as N*1 or 1*M matrix, respectively.
 	assert(m.row(0)[] == [0, 0, 4]);
 	assert(m.column(2)[] == [4, 0]);
@@ -116,6 +128,22 @@ unittest {
 	assert(is(Matrix2x3f == Matrix!(float, 2, 3)));
 	assert(is(Matrix3d == Matrix!(double, 3, 3)));
 	assert(is(Vector2i == Vector!(int, 2)));
+	assert(is(HVector4r == HVector!(real, 4)));
+
+	// A HVector is a Vector with the last element set to 1 by default.
+	// This is handy for 4D representations of positions in 3D graphics
+	// and RGBA color vectors.
+	auto h = HVector4d(1, 0.3, 0.4);
+	assert(h[] == [1, 0.3, 0.4, 1]);
+	h = [0, 2, 3];
+	assert(h[] == [0, 2, 3, 1]);
+	// They can be converted back and forth to normal vectors.
+	Vector4d w = h;
+	HVector4d h1 = w;
+	HVector4d h2 = Vector3d(1, 2, 3);
+	h = w;
+	w = h;
+	h += w;
 }
 
 struct Matrix(T, size_t N, size_t M = N) {
@@ -127,6 +155,283 @@ struct Matrix(T, size_t N, size_t M = N) {
 
 	alias N height;
 	alias M width;
+
+	pure nothrow {
+
+		this()(in const(T)[N*M] v ...) { this = v; }
+		this(T2)(in Matrix!(T2, N, M) m) { this = m; }
+
+		ref Matrix opAssign()(in const(T)[N*M] v) {
+			values = v;
+			return this;
+		}
+
+		ref Matrix opAssign(T2)(in Matrix!(T2, N, M) m) {
+			foreach (i; 0 .. N*M) values[i] = m[i];
+			return this;
+		}
+
+		static if (M == 1) {
+
+			this(size_t N2)(in const(T)[N2] v ...) if (N2 < N) { this = v; }
+			this(T2, size_t N2)(in Matrix!(T2, N2, 1) v) if (N2 < N) { this = v; }
+
+			ref Matrix opAssign(size_t N2)(in const(T)[N2] v ...) if (N2 < N) {
+				values[0..v.length] = v;
+				values[v.length..$] = 0;
+				return this;
+			}
+
+			ref Matrix opAssign(T2, size_t N2)(in Matrix!(T2, N2, 1) v) if (N2 < N) {
+				foreach (i; 0 .. N2) values[i] = v[i];
+				values[N2 .. $] = 0;
+				return this;
+			}
+
+		}
+
+		@property static Matrix zero() {
+			Matrix m;
+			m[] = cast(T)0;
+			return m;
+		}
+
+		static if (N == M)
+		@property static Matrix identity() {
+			auto m = zero;
+			foreach (i; 0 .. N) m[i, i] = 1;
+			return m;
+		}
+
+		ref auto opIndex(size_t i) inout { return values[i]; }
+		ref auto opIndex(size_t n, size_t m) inout { return values[n*M + m]; }
+
+		auto opSlice() inout { return values[]; }
+		auto opSliceAssign(T2)(in T2 v) { values[] = v; }
+		auto opSliceOpAssign(string op, T2)(in T2 v) { mixin("values[] " ~ op ~ "= v;"); }
+
+		size_t opDollar() const { return N*M; }
+
+		auto transposed() const {
+			Matrix!(T, M, N) result;
+			foreach (i; 0 .. N) foreach (j; 0 .. M) result[j, i] = this[i, j];
+			return result;
+		}
+
+		static if (N > 1 && M > 1) {
+
+			Matrix!(T, N, 1) column(size_t k) const {
+				typeof(return) m;
+				foreach (i; 0 .. N) m[i] = this[i, k];
+				return m;
+			}
+
+			Matrix!(T, 1, M) row(size_t k) const {
+				T[M] r = values[k*M .. (k+1)*M];
+				return typeof(return)(r);
+			}
+
+			static if (M > 1)
+			Matrix!(T, N, M-1) without_column(size_t k) const {
+				typeof(return) m;
+				foreach (i; 0 .. N) foreach (j; 0 .. M-1) {
+					m[i, j] = this[i, j + (j >= k)];
+				}
+				return m;
+			}
+
+			static if (N > 1)
+			Matrix!(T, N-1, M) without_row(size_t k) const {
+				typeof(return) m;
+				foreach (i; 0 .. N-1) foreach (j; 0 .. M) {
+					m[i, j] = this[i + (i >= k), j];
+				}
+				return m;
+			}
+
+			static if (N > 1 && M > 1)
+			Matrix!(T, N-1, M-1) without_row_column(size_t r, size_t c) const {
+				typeof(return) m;
+				foreach (i; 0 .. N-1) foreach (j; 0 .. M-1) {
+					m[i, j] = this[i + (i >= r), j + (j >= c)];
+				}
+				return m;
+			}
+
+		}
+
+		static if (M == 1) {
+
+			/// Euclidian length
+			auto length() const {
+				CommonType!(T, float) d = this * this;
+				return sqrt(d);
+			}
+
+			/// The vector scaled by 1/length
+			auto normalized() const {
+				return this / length;
+			}
+
+			/// Scale the vector by 1/length
+			void normalize() {
+				this /= length;
+			}
+
+		}
+
+		static if (N == M) {
+
+			void transpose() {
+				this = transposed;
+			}
+
+			T determinant() const {
+				static if (N == 1) {
+					return this[0];
+				} else static if (N == 2) {
+					return cast(T)(this[0, 0] * this[1, 1] - this[0, 1] * this[1, 0]);
+				} else static if (N == 3) {
+					return cast(T)(
+						this[0, 0] * (this[1, 1] * this[2, 2] - this[2, 1] * this[1, 2]) +
+						this[1, 0] * (this[2, 1] * this[0, 2] - this[0, 1] * this[2, 2]) +
+						this[2, 0] * (this[0, 1] * this[1, 2] - this[1, 1] * this[0, 2])
+					);
+				} else { // Generic case. (Would work for any N.)
+					T result = 0;
+					foreach (i; 0 .. N) result += this[0, i] * cofactor(0, i);
+					return result;
+				}
+			}
+
+			T cofactor(size_t n, size_t m) const {
+				static if (N == 1) {
+					return cast(T)1;
+				} else {
+					auto d = without_row_column(n, m).determinant;
+					return (n + m) % 2 ? -d : d;
+				}
+			}
+
+			Matrix cofactor_matrix() const {
+				Matrix result;
+				foreach (i; 0 .. N) foreach (j; 0 .. M) result[i, j] = cofactor(i, j);
+				return result;
+			}
+
+			Matrix adjugate() const {
+				return cofactor_matrix.transposed;
+			}
+
+			Matrix inverse() const {
+				auto a = adjugate;
+				return a /= determinant;
+			}
+
+			void invert() {
+				this = inverse;
+			}
+
+		}
+
+		/// M+=M, M-=M
+		ref Matrix opOpAssign(string op, T2)(in Matrix!(T2, N, M) m)
+		if (op == "+" || op == "-") {
+			foreach (i; 0 .. N*M) mixin("this[i] " ~ op ~ "= m[i];");
+			return this;
+		}
+
+		/// V+=V, V-=V (different sizes)
+		static if (M == 1)
+		ref Matrix opOpAssign(string op, T2, size_t N2)(in Matrix!(T2, N2, 1) m)
+		if ((op == "+" || op == "-") && N2 < N) {
+			foreach (i; 0 .. N2) mixin("this[i] " ~ op ~ "= m[i];");
+			return this;
+		}
+
+		/// M+M, M-M
+		auto opBinary(string op, T2)(in Matrix!(T2, N, M) m) const
+		if (op == "+" || op == "-") {
+			Matrix!(Unqual!(typeof(this[0] + m[0])), N, M) result;
+			foreach (i; 0 .. N*M) mixin("result[i] = this[i] " ~ op ~ " m[i];");
+			return result;
+		}
+
+		/// V+V, V-V (different sizes)
+		static if (M == 1)
+		auto opBinary(string op, T2, size_t N2)(in Matrix!(T2, N2, 1) m) const
+		if ((op == "+" || op == "-") && N != N2) {
+			Matrix!(Unqual!(typeof(this[0] + m[0])), max(N, N2), 1) result;
+			foreach (i; 0 .. result.height) mixin("result[i] = (i < N ? this[i] : 0) " ~ op ~ " (i < N2 ? m[i] : 0);");
+			return result;
+		}
+
+		/// +M, -M
+		Matrix opUnary(string op)() const
+		if (op == "+" || op == "-") {
+			Matrix m;
+			foreach (i; 0 .. N*M) mixin("m[i] = " ~ op ~ "this[i];");
+			return m;
+		}
+
+		/// M*S, M/S
+		auto opBinary(string op, T2)(in T2 v) const
+		if ((op == "*" || op == "/") && !isInstanceOf!(Matrix, T2)) {
+			Matrix!(Unqual!(typeof(this[0] * v)), N, M) result;
+			foreach (i; 0 .. N*M) mixin("result[i] = this[i] " ~ op ~ " v;");
+			return result;
+		}
+
+		/// S*M
+		auto opBinaryRight(string op, T2)(in T2 v) const
+		if (op == "*" && !isInstanceOf!(Matrix, T2)) {
+			Matrix!(Unqual!(typeof(v * this[0])), N, M) result;
+			foreach (i; 0 .. N*M) mixin("result[i] = v " ~ op ~ " this[i];");
+			return result;
+		}
+
+		/// M*=S, M/=S
+		ref Matrix opOpAssign(string op, T2)(in T2 v)
+		if ((op == "*" || op == "/") && !isInstanceOf!(Matrix, T2)) {
+			foreach (i; 0 .. N*M) mixin("this[i] " ~ op ~ "= v;");
+			return this;
+		}
+
+		/// V*V
+		static if (M == 1)
+		auto opBinary(string op, T2, size_t N2)(in Matrix!(T2, N2, 1) m) const
+		if (op == "*") {
+			Unqual!(typeof(this[0] * m[0])) result = 0;
+			foreach (i; 0 .. min(N, N2)) result += this[i] * m[i];
+			return result;
+		}
+
+		/// M*M
+		auto opBinary(string op, T2, size_t M2)(in Matrix!(T2, M, M2) m) const
+		if (op == "*" && (N != 1 || M != 1 || M2 != 1)) {
+			Matrix!(typeof(row(0).transposed * m.column(0)), N, M2) result;
+			foreach (i; 0 .. result.height)
+			foreach (j; 0 .. result.width) {
+				result[i, j] = row(i).transposed * m.column(j);
+			}
+			return result;
+		}
+
+		/// M*=M
+		static if (N == M)
+		ref Matrix opOpAssign(string op, T2)(in Matrix!(T2, N, N) m)
+		if (op == "*") {
+			this = this * m;
+			return this;
+		}
+
+	}
+
+	static if (M == 1) {
+		auto opSlice(size_t i, size_t j) inout { return values[i..j]; }
+		auto opSliceAssign(T2)(T2 v, size_t i, size_t j) { values[i..j] = v; }
+		auto opSliceOpAssign(string op, T2)(T2 v, size_t i, size_t j) { mixin("values[i..j] " ~ op ~ "= v;"); }
+	}
 
 	string toString() const {
 		string s = "[";
@@ -140,222 +445,41 @@ struct Matrix(T, size_t N, size_t M = N) {
 		return s ~= "]";
 	}
 
-pure:
-nothrow:
-
-	this(const(T)[] v ...) { values = v; }
-
-	@property static Matrix zero() {
-		Matrix m;
-		m[] = cast(T)0;
-		return m;
-	}
-
-	static if (N == M)
-	@property static Matrix identity() {
-		auto m = zero;
-		foreach (i; 0 .. N) m[i, i] = 1;
-		return m;
-	}
-
-	ref inout(T) opIndex(size_t i) inout { return values[i]; }
-	ref inout(T) opIndex(size_t n, size_t m) inout { return values[n*M + m]; }
-
-	auto opSlice() inout { return values[]; }
-	auto opSliceAssign(T2)(T2 v) { values[] = v; }
-	auto opSliceOpAssign(string op, T2)(T2 v) { mixin("values[] " ~ op ~ "= v;"); }
-
-	auto transposed() const {
-		Matrix!(T, M, N) result;
-		foreach (i; 0 .. N) foreach (j; 0 .. M) result[j, i] = this[i, j];
-		return result;
-	}
-
-	Matrix!(T, N, 1) column(size_t k) const {
-		typeof(return) m;
-		foreach (i; 0 .. N) m[i] = this[i, k];
-		return m;
-	}
-
-	Matrix!(T, 1, M) row(size_t k) const {
-		T[M] r = values[k*M .. (k+1)*M];
-		return typeof(return)(r);
-	}
-
-	static if (M > 1)
-	Matrix!(T, N, M-1) without_column(size_t k) const {
-		typeof(return) m;
-		foreach (i; 0 .. N) foreach (j; 0 .. M-1) {
-			m[i, j] = this[i, j + (j >= k)];
-		}
-		return m;
-	}
-
-	static if (N > 1)
-	Matrix!(T, N-1, M) without_row(size_t k) const {
-		typeof(return) m;
-		foreach (i; 0 .. N-1) foreach (j; 0 .. M) {
-			m[i, j] = this[i + (i >= k), j];
-		}
-		return m;
-	}
-
-	static if (N > 1 && M > 1)
-	Matrix!(T, N-1, M-1) without_row_column(size_t r, size_t c) const {
-		typeof(return) m;
-		foreach (i; 0 .. N-1) foreach (j; 0 .. M-1) {
-			m[i, j] = this[i + (i >= r), j + (j >= c)];
-		}
-		return m;
-	}
-
-	static if (M == 1) {
-
-		/// Euclidian length
-		auto length() const {
-			CommonType!(T, float) d = this * this;
-			return sqrt(d);
-		}
-
-		/// The vector scaled by 1/length
-		auto normalized() const {
-			return this / length;
-		}
-
-		/// Scale the vector by 1/length
-		void normalize() {
-			this /= length;
-		}
-
-	}
-
-	static if (N == M) {
-
-		void transpose() {
-			this = transposed;
-		}
-
-		T determinant() const {
-			static if (N == 1) {
-				return this[0];
-			} else static if (N == 2) {
-				return cast(T)(this[0, 0] * this[1, 1] - this[0, 1] * this[1, 0]);
-			} else static if (N == 3) {
-				return cast(T)(
-					this[0, 0] * (this[1, 1] * this[2, 2] - this[2, 1] * this[1, 2]) +
-					this[1, 0] * (this[2, 1] * this[0, 2] - this[0, 1] * this[2, 2]) +
-					this[2, 0] * (this[0, 1] * this[1, 2] - this[1, 1] * this[0, 2])
-				);
-			} else { // Generic case. (Would work for any N.)
-				T result = 0;
-				foreach (i; 0 .. N) result += this[0, i] * cofactor(0, i);
-				return result;
-			}
-		}
-
-		T cofactor(size_t n, size_t m) const {
-			static if (N == 1) {
-				return cast(T)1;
-			} else {
-				auto d = without_row_column(n, m).determinant;
-				return (n + m) % 2 ? -d : d;
-			}
-		}
-
-		Matrix cofactor_matrix() const {
-			Matrix result;
-			foreach (i; 0 .. N) foreach (j; 0 .. M) result[i, j] = cofactor(i, j);
-			return result;
-		}
-
-		Matrix adjugate() const {
-			return cofactor_matrix.transposed;
-		}
-
-		Matrix inverse() const {
-			auto a = adjugate;
-			return a /= determinant;
-		}
-
-		void invert() {
-			this = inverse;
-		}
-
-	}
-
-	/// M+=M, M-=M
-	ref Matrix opOpAssign(string op, T2)(in Matrix!(T2, N, M) m) if (op == "+" || op == "-") {
-		foreach (i; 0 .. N*M) mixin("this[i] " ~ op ~ "= m[i];");
-		return this;
-	}
-
-	/// M+M, M-M
-	auto opBinary(string op, T2)(in Matrix!(T2, N, M) m) const if (op == "+" || op == "-") {
-		Matrix!(Unqual!(typeof(this[0] + m[0])), N, M) result;
-		foreach (i; 0 .. N*M) mixin("result[i] = this[i] " ~ op ~ " m[i];");
-		return result;
-	}
-
-	/// +M, -M
-	Matrix opUnary(string op)() const if (op == "+" || op == "-") {
-		Matrix m;
-		foreach (i; 0 .. N*M) mixin("m[i] = " ~ op ~ "this[i];");
-		return m;
-	}
-
-	/// M*S, M/S
-	auto opBinary(string op, T2)(in T2 v) const
-	if ((op == "*" || op == "/") && !isInstanceOf!(Matrix, T2)) {
-		Matrix!(Unqual!(typeof(this[0] * v)), N, M) result;
-		foreach (i; 0 .. N*M) mixin("result[i] = this[i] " ~ op ~ " v;");
-		return result;
-	}
-
-	/// S*M
-	auto opBinaryRight(string op, T2)(in T2 v) const
-	if (op == "*" && !isInstanceOf!(Matrix, T2)) {
-		Matrix!(Unqual!(typeof(v * this[0])), N, M) result;
-		foreach (i; 0 .. N*M) mixin("result[i] = v " ~ op ~ " this[i];");
-		return result;
-	}
-
-	/// M*=S, M/=S
-	ref Matrix opOpAssign(string op, T2)(in T2 v)
-	if ((op == "*" || op == "/") && !isInstanceOf!(Matrix, T2)) {
-		foreach (i; 0 .. N*M) mixin("this[i] " ~ op ~ "= v;");
-		return this;
-	}
-
-	/// V*V
-	static if (M == 1)
-	auto opBinary(string op, T2)(in Matrix!(T2, N, 1) m) const if (op == "*") {
-		Unqual!(typeof(this[0] * m[0])) result = 0;
-		foreach (i; 0 .. N) result += this[i] * m[i];
-		return result;
-	}
-
-	/// M*M
-	auto opBinary(string op, T2, size_t M2)(in Matrix!(T2, M, M2) m) const
-	if (op == "*" && (N != 1 || M != 1 || M2 != 1)) {
-		Matrix!(typeof(row(0).transposed * m.column(0)), N, M2) result;
-		foreach (i; 0 .. result.height)
-		foreach (j; 0 .. result.width) {
-			result[i, j] = row(i).transposed * m.column(j);
-		}
-		return result;
-	}
-
-	/// M*=M
-	static if (N == M)
-	ref Matrix opOpAssign(string op, T2)(in Matrix!(T2, N, N) m) if (op == "*") {
-		this = this * m;
-		return this;
-	}
-
 }
 
 template Vector(T, size_t N) {
 	alias Matrix!(T, N, 1) Vector;
+}
+
+/// A 'homogeneous vector': A vector with the last element set to 1 by default.
+struct HVector(T, size_t N) {
+
+	Vector!(T, N) vector;
+
+	alias vector this;
+
+pure nothrow:
+
+	this(size_t N2)(const(T)[N2] v ...) if (N2 <= N) { this = v; }
+	this(T2, size_t N2)(in Matrix!(T2, N2, 1) v) if (N2 <= N) { this = v; }
+
+	ref HVector opAssign(size_t N2)(const(T)[N2] v ...) if (N2 <= N) {
+		vector = v;
+		if (v.length < N) vector[$-1] = 1;
+		return this;
+	}
+
+	ref HVector opAssign(T2, size_t N2)(in Matrix!(T2, N2, 1) v) if (N2 <= N) {
+		vector = v;
+		if (v.length < N) vector[$-1] = 1;
+		return this;
+	}
+
+	// Length (and therefore, normalizing) doesn't make sense for these kind of vectors.
+	@disable void length();
+	@disable void normalized();
+	@disable void normalize();
+
 }
 
 // Aliases for MatrixNxMt, MatrixNt, and VectorNt. (With t = i,f,d,r.)
@@ -367,11 +491,8 @@ mixin((){
 			if (n == 1 && m == 1) continue;
 			code ~= text("alias Matrix!(", t, ",", n, ",", m, ") Matrix", n, "x", m, k, ";\n");
 		}
-		foreach (n; 2 .. 5) {
-			code ~= text("alias Matrix!(", t, ",", n, ",", n, ") Matrix", n, k, ";\n");
-		}
-		foreach (n; 2 .. 5) {
-			code ~= text("alias Matrix!(", t, ",", n, ",1) Vector", n, k, ";\n");
+		foreach (m; ["Matrix", "Vector", "HVector"]) foreach (n; 2 .. 5) {
+			code ~= text("alias ", m, "!(", t, ",", n, ") ", m, n, k, ";\n");
 		}
 	}
 	return code;
