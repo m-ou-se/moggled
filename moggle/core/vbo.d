@@ -166,7 +166,7 @@ struct VboMapping(T) {
 
 	private T[] data_;
 
-	@property inout(T[]) data() inout { return data_; }
+	@property T[] data() { return data_; }
 
 	alias data this;
 
