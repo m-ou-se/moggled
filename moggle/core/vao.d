@@ -1,5 +1,7 @@
 module moggle.core.vao;
 
+import std.typetuple;
+
 import moggle.core.gl;
 import moggle.core.vbo;
 import moggle.math.matrix;
@@ -37,36 +39,34 @@ struct vao {
 		destroy();
 	}
 
-	void attribute()(
-		GLuint index,
-		ref generic_vbo vbo,
-		GLint size,
-		GLenum type,
-		bool normalize_integers,
-		GLsizei stride,
-		const(void) * offset
-	) {
+	void attribute()(GLuint index, ref generic_vbo vbo, AttributeParameters parameters) {
 		bind();
 		vbo.bind(GL_ARRAY_BUFFER);
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, size, type, normalize_integers, stride, offset);
+		glVertexAttribPointer(index, parameters);
 	}
 
 	void attribute(T)(GLuint index, ref specific_vbo!(T) vbo) {
-		static if (is(T == HVector!(E, N), E, size_t N)) {
-			alias E element_type;
-			enum size = N;
-		} else static if (is(T == Matrix!(E, N, M), E, size_t N, size_t M)) {
-			alias E element_type;
-			enum size = N * M;
-		} else {
-			alias T element_type;
-			enum size = 1;
-		}
-		enum normalized = is(element_type == Normalized!(base_type), base_type);
-		static if (!normalized) alias element_type base_type;
-		attribute(index, vbo, size, GL_type!base_type, normalized, T.sizeof, null);
+		attribute(index, vbo, attributeParametersFor!T);
 	}
 
+}
+
+alias TypeTuple!(GLint, GLenum, bool, GLsizei, const(void)*) AttributeParameters;
+
+template attributeParametersFor(T) {
+	static if (is(T == HVector!(E, N), E, size_t N)) {
+		alias E element_type;
+		enum size = N;
+	} else static if (is(T == Matrix!(E, N, M), E, size_t N, size_t M)) {
+		alias E element_type;
+		enum size = N * M;
+	} else {
+		alias T element_type;
+		enum size = 1;
+	}
+	enum normalized = is(element_type == Normalized!(base_type), base_type);
+	static if (!normalized) alias element_type base_type;
+	alias TypeTuple!(size, GL_type!base_type, normalized, T.sizeof, null) attributeParametersFor;
 }
 
