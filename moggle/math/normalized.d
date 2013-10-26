@@ -2,6 +2,53 @@ module moggle.math.normalized;
 
 import std.algorithm;
 
+/// An integral type behaving like a floating point type.
+struct Normalized(T) {
+
+pure:
+nothrow:
+
+	static if (T.max < 1 << float.mant_dig) {
+		private alias float F;
+	} else static if (T.max < 1L << double.mant_dig) {
+		private alias double F;
+	} else {
+		private alias real F;
+	}
+
+	alias T raw_type;
+	alias F float_type;
+
+	T raw;
+
+	this(in F v) { this = v; }
+
+	static Normalized fromRaw(T v) {
+		Normalized n;
+		n.raw = v;
+		return n;
+	}
+
+	@property F value() const {
+		return cast(F)raw / T.max;
+	}
+
+	@property ref Normalized value(F v) {
+		v = min(v, 1);
+		v = max(v, T.min < 0 ? -1 : 0);
+		raw = cast(T)(v * T.max);
+		return this;
+	}
+
+	alias value this;
+
+	ref Normalized opOpAssign(string op, T2)(in T2 v) {
+		mixin("return this = this " ~ op ~ " v;");
+	}
+
+}
+
+///
 unittest {
 	Normalized!(byte) b; // Behaves like a float, but stores -1..1 in a byte as -127..127.
 	Normalized!(uint) u; // Stores 0..1 in a uint as 0..uint.max.
@@ -52,50 +99,5 @@ unittest {
 	assert(rgb_f[0] == 1);
 	rgb_f[1] = 0.6; // Modifies the original byte in rgb_b.
 	assert(rgb_b[1] == 153);
-}
-
-struct Normalized(T) {
-
-pure:
-nothrow:
-
-	static if (T.max < 1 << float.mant_dig) {
-		private alias float F;
-	} else static if (T.max < 1L << double.mant_dig) {
-		private alias double F;
-	} else {
-		private alias real F;
-	}
-
-	alias T raw_type;
-	alias F float_type;
-
-	T raw;
-
-	this(in F v) { this = v; }
-
-	static Normalized fromRaw(T v) {
-		Normalized n;
-		n.raw = v;
-		return n;
-	}
-
-	@property F value() const {
-		return cast(F)raw / T.max;
-	}
-
-	@property ref Normalized value(F v) {
-		v = min(v, 1);
-		v = max(v, T.min < 0 ? -1 : 0);
-		raw = cast(T)(v * T.max);
-		return this;
-	}
-
-	alias value this;
-
-	ref Normalized opOpAssign(string op, T2)(in T2 v) {
-		mixin("return this = this " ~ op ~ " v;");
-	}
-
 }
 
