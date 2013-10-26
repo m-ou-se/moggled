@@ -13,8 +13,8 @@
 <dd>An integral type behaving like a floating point type.<br><br>
 <b>Examples:</b><br>
 <pre class="d_code">
-<u>Normalized</u>!(<font color=blue>byte</font>) b; <font color=green>// Behaves like a float, but stores -1..1 in a byte as -127..127.
-</font><u>Normalized</u>!(<font color=blue>uint</font>) u; <font color=green>// Stores 0..1 in a uint as 0..uint.max.
+<u>Normalized</u>!<font color=blue>byte</font> b; <font color=green>// Behaves like a float, but stores -1..1 in a byte as -127..127.
+</font><u>Normalized</u>!<font color=blue>uint</font> u; <font color=green>// Stores 0..1 in a uint as 0..uint.max.
 </font>
 <font color=green>// Just use them as if they are floats.
 </font>b = 0.5;
@@ -43,21 +43,21 @@ u.raw = 2147483648;
 <font color=blue>assert</font>(u &gt;= 0.49 &amp;&amp; u &lt;= 0.51);
 
 <font color=green>// fromRaw constructs from the raw value.
-</font><font color=blue>auto</font> x = <u>Normalized</u>!(<font color=blue>ubyte</font>)(0.4);
-<font color=blue>auto</font> y = <u>Normalized</u>!(<font color=blue>ubyte</font>).fromRaw(102); <font color=green>// 102/255
+</font><font color=blue>auto</font> x = <u>Normalized</u>!<font color=blue>ubyte</font>(0.4);
+<font color=blue>auto</font> y = <u>Normalized</u>!<font color=blue>ubyte</font>.fromRaw(102); <font color=green>// 102/255
 </font><font color=blue>assert</font>(x == y);
 
 <font color=green>// The floating point type it behaves as is the smallest of [float, double, real] with
 </font><font color=green>// at least as much precision as the underlying type.
-</font><font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<u>Normalized</u>!(<font color=blue>byte</font>).float_type == <font color=blue>float</font>));
-<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<u>Normalized</u>!(<font color=blue>uint</font>).float_type == <font color=blue>double</font>));
-<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<u>Normalized</u>!(<font color=blue>long</font>).float_type == <font color=blue>real</font>));
+</font><font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<u>Normalized</u>!<font color=blue>byte</font>.float_type == <font color=blue>float</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<u>Normalized</u>!<font color=blue>uint</font>.float_type == <font color=blue>double</font>));
+<font color=blue>static</font> <font color=blue>assert</font>(<font color=blue>is</font>(<u>Normalized</u>!<font color=blue>long</font>.float_type == <font color=blue>real</font>));
 
-<font color=green>// Normalized!(T) only contains a T, so a T[] and a Normalized!(T)[] can be
+<font color=green>// Normalized!T only contains a T, so a T[] and a Normalized!T[] can be
 </font><font color=green>// casted to eachother.
-</font><font color=blue>static</font> <font color=blue>assert</font>(<u>Normalized</u>!(<font color=blue>byte</font>).sizeof == 1);
+</font><font color=blue>static</font> <font color=blue>assert</font>(<u>Normalized</u>!<font color=blue>byte</font>.sizeof == 1);
 <font color=blue>ubyte</font>[3] rgb_b = [255, 102, 0];
-<font color=blue>auto</font> rgb_f = <font color=blue>cast</font>(<u>Normalized</u>!(<font color=blue>ubyte</font>)[])rgb_b;
+<font color=blue>auto</font> rgb_f = <font color=blue>cast</font>(<u>Normalized</u>!<font color=blue>ubyte</font>[])rgb_b;
 <font color=green>// rgb_f is now [1, 0.4, 0]
 </font><font color=blue>assert</font>(rgb_f[0] == 1);
 rgb_f[1] = 0.6; <font color=green>// Modifies the original byte in rgb_b.
