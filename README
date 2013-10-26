@@ -1,4 +1,14 @@
-This is the D version of Moggle (github.com/m-ou-se/moggle).
+This is the D version of Moggle.
+
+D version: https://github.com/m-ou-se/moggled
+C++ version: https://github.com/m-ou-se/moggle
+
+The documentation can be found online: http://m-ou-se.github.io/moggled/
+You can generate the documentation yourself by running 'make doc'.
+
+
+Moggle is made by Mara Bos <m-ou.se@m-ou.se>.
+
 
 == License ==
 
