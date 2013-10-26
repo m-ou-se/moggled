@@ -128,6 +128,7 @@ struct ShaderProgram {
 	}
 
 	void bindAttribute(GLuint attribute, const(char)* name) {
+		create();
 		glBindAttribLocation(id_, attribute, name);
 	}
 
