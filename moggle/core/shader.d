@@ -127,16 +127,16 @@ struct ShaderProgram {
 		glAttachShader(id_, shader.id);
 	}
 
-	void bind_attribute(GLuint attribute, const(char)* name) {
+	void bindAttribute(GLuint attribute, const(char)* name) {
 		glBindAttribLocation(id_, attribute, name);
 	}
 
-	void try_link() {
+	void tryLink() {
 		glLinkProgram(id_);
 	}
 
 	void link() {
-		try_link();
+		tryLink();
 		if (!linked()) throw new ShaderCompilationError("glLinkProgram: Unable to link program:\n" ~ log());
 	}
 
