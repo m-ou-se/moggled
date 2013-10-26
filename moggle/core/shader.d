@@ -9,12 +9,6 @@ enum ShaderType : GLenum {
 	fragment = GL_FRAGMENT_SHADER
 }
 
-class ShaderCompilationError : GlError {
-	this(string func, string what, string file = __FILE__, size_t line = __LINE__) {
-		super(func, what, file, line);
-	}
-};
-
 struct Shader {
 
 	private GLuint id_ = 0;
@@ -75,7 +69,7 @@ struct Shader {
 
 	void compile() {
 		try_compile();
-		if (!compiled()) throw new ShaderCompilationError("glCompileShader", "Unable to compile shader:\n" ~ log());
+		if (!compiled()) throw new ShaderCompilationError("glCompileShader: Unable to compile shader:\n" ~ log());
 	}
 
 	bool compiled() const {
@@ -141,7 +135,7 @@ struct ShaderProgram {
 
 	void link() {
 		try_link();
-		if (!linked()) throw new ShaderCompilationError("glLinkProgram", "Unable to link program:\n" ~ log());
+		if (!linked()) throw new ShaderCompilationError("glLinkProgram: Unable to link program:\n" ~ log());
 	}
 
 	bool linked() const {
@@ -241,4 +235,11 @@ struct Uniform(T) {
 	}
 
 }
+
+/// The error that is thrown when Shader.compile() or ShaderProgram.link() fail.
+class ShaderCompilationError : Exception {
+	this(string what, string file = __FILE__, size_t line = __LINE__) {
+		super(what, file, line);
+	}
+};
 
