@@ -111,7 +111,7 @@ struct SpecificVbo(T) {
 
 	/// Calls resize(0).
 	void clear(GLenum usage = GL_STATIC_DRAW) {
-		resize(0);
+		resize(0, usage);
 	}
 
 	/++ Map the contents of the Vbo in our own memory, temporarily
