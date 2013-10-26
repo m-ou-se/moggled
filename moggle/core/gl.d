@@ -1,3 +1,16 @@
+/++ Gives you access to all glFunctions, GL_CONSTANTS and GLtypes.
+
+In debug mode, glGetError() is automatically checked before and after all
+calls to all glFunctions (except glGetError). Any errors are then thrown
+as an moggle.core.gl.GLError.
+
+When not in debug mode, moggle.core.gl simply publicly imports the Derelict OpenGL modules.
+
+Don't forget to call loadOpenGL() after you created your OpenGL context,
+or some glFunctions will still be null.
+
+The Derelict library is used for OpenGL bindings.
++/
 module moggle.core.gl;
 
 import std.traits;
@@ -19,6 +32,7 @@ GLVersion loadOpenGL() {
 	return DerelictGL3.reload();
 }
 
+/// The error that is thrown when glGetError() indicates an error.
 class GLError : Exception {
 	this(string func, string what, string file = __FILE__, size_t line = __LINE__) {
 		super(func ~ ": " ~ what, file, line);
@@ -26,9 +40,6 @@ class GLError : Exception {
 }
 
 debug {
-	// In debug mode, all glFunctions are aliasses for wrap!glFunction, which will throw an
-	// exception in case glGetError() indicates an error before or after the function call.
-
 	immutable string[uint] constant_names;
 
 	static this() {
@@ -75,6 +86,16 @@ debug {
 
 }
 
+/++ Get the GL_CONSTANT representing the type T.
+
+This is an alias of one of GL_FLOAT, GL_DOUBLE, GL_UNSIGNED_INT, GL_INT,
+GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_BYTE, and GL_BYTE.
+
+Examples:
+---
+assert(GL_type!float == GL_FLOAT);
+---
++/
 template GL_type(T) {
 	     static if (is(T == GLfloat )) alias GL_FLOAT          GL_type;
 	else static if (is(T == GLdouble)) alias GL_DOUBLE         GL_type;
