@@ -1,8 +1,10 @@
-sources = $(wildcard */*.d */*/*.d)
+sources = $(wildcard moggle/*.d moggle/*/*.d)
 
-test: tester
-	@echo Running unit tests...
-	@./tester && echo All tests passed, congratulations!
+.PHONY: run-test
 
-tester: $(sources)
-	dmd -main -unittest $^ -of$@
+run-test: test
+	./test
+
+test: test.d $(sources)
+	dmd -debug $^ -of$@
+
