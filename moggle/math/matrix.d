@@ -173,6 +173,8 @@ struct Matrix(T, size_t N, size_t M = N) {
 			return this;
 		}
 
+		@property auto ptr() inout { return values.ptr; }
+
 		static if (M == 1) {
 
 			this(size_t N2)(in const(T)[N2] v ...) if (N2 < N) { this = v; }
