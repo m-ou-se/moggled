@@ -184,9 +184,9 @@ and both static and dynamic arrays of Matrices/Vectors/Hvectors of GLfloat.
 */
 struct Uniform(T) {
 
-	private GLuint id_ = 0;
+	private GLuint location_ = 0;
 
-	@property GLuint id() const { return id_; }
+	@property GLuint location() const { return id_; }
 
 	this(GLuint id) { id_ = id; }
 
