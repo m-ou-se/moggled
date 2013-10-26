@@ -1,0 +1,13 @@
+DDOC = <!doctype html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>$(TITLE)</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head><body>
+<h1><a href="index.html">Moggle</a></h1>
+<h2>$(TITLE)</h2>
+$(BODY)
+</body></html>
+DDOC_PSYMBOL = <a name="$0"></a><span class="ddoc_psymbol">$0</span>
+DDOC_ANCHOR = <a name=".$1"></a>
+DDOC_DECL = <dt class="d_decl">$0</dt>
