@@ -1,3 +1,5 @@
+module moggle.math.matrix;
+
 import std.conv;
 import std.traits;
 import std.math;

@@ -1,3 +1,5 @@
+module moggle.math.normalized;
+
 import std.algorithm;
 
 unittest {
