@@ -50,8 +50,8 @@ nothrow:
 
 ///
 unittest {
-	Normalized!(byte) b; // Behaves like a float, but stores -1..1 in a byte as -127..127.
-	Normalized!(uint) u; // Stores 0..1 in a uint as 0..uint.max.
+	Normalized!byte b; // Behaves like a float, but stores -1..1 in a byte as -127..127.
+	Normalized!uint u; // Stores 0..1 in a uint as 0..uint.max.
 
 	// Just use them as if they are floats.
 	b = 0.5;
@@ -80,21 +80,21 @@ unittest {
 	assert(u >= 0.49 && u <= 0.51);
 
 	// fromRaw constructs from the raw value.
-	auto x = Normalized!(ubyte)(0.4);
-	auto y = Normalized!(ubyte).fromRaw(102); // 102/255
+	auto x = Normalized!ubyte(0.4);
+	auto y = Normalized!ubyte.fromRaw(102); // 102/255
 	assert(x == y);
 
 	// The floating point type it behaves as is the smallest of [float, double, real] with
 	// at least as much precision as the underlying type.
-	static assert(is(Normalized!(byte).float_type == float));
-	static assert(is(Normalized!(uint).float_type == double));
-	static assert(is(Normalized!(long).float_type == real));
+	static assert(is(Normalized!byte.float_type == float));
+	static assert(is(Normalized!uint.float_type == double));
+	static assert(is(Normalized!long.float_type == real));
 
-	// Normalized!(T) only contains a T, so a T[] and a Normalized!(T)[] can be
+	// Normalized!T only contains a T, so a T[] and a Normalized!T[] can be
 	// casted to eachother.
-	static assert(Normalized!(byte).sizeof == 1);
+	static assert(Normalized!byte.sizeof == 1);
 	ubyte[3] rgb_b = [255, 102, 0];
-	auto rgb_f = cast(Normalized!(ubyte)[])rgb_b;
+	auto rgb_f = cast(Normalized!ubyte[])rgb_b;
 	// rgb_f is now [1, 0.4, 0]
 	assert(rgb_f[0] == 1);
 	rgb_f[1] = 0.6; // Modifies the original byte in rgb_b.
