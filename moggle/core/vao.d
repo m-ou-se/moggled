@@ -7,7 +7,7 @@ import moggle.core.vbo;
 import moggle.math.matrix;
 import moggle.math.normalized;
 
-struct vao {
+struct Vao {
 
 	private GLuint id_ = 0;
 
@@ -39,14 +39,14 @@ struct vao {
 		destroy();
 	}
 
-	void attribute()(GLuint index, ref generic_vbo vbo, AttributeParameters parameters) {
+	void attribute()(GLuint index, ref GenericVbo vbo, AttributeParameters parameters) {
 		bind();
 		vbo.bind(GL_ARRAY_BUFFER);
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, parameters);
 	}
 
-	void attribute(T)(GLuint index, ref specific_vbo!(T) vbo) {
+	void attribute(T)(GLuint index, ref SpecificVbo!(T) vbo) {
 		attribute(index, vbo, attributeParametersFor!T);
 	}
 

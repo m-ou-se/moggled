@@ -2,7 +2,7 @@ module moggle.core.vbo;
 
 import moggle.core.gl;
 
-struct generic_vbo {
+struct GenericVbo {
 
 	private GLuint id_ = 0;
 
@@ -28,7 +28,7 @@ struct generic_vbo {
 		return created;
 	}
 
-	ref inout(specific_vbo!(T)) opCast(T : specific_vbo!(T))() inout {
+	ref inout(SpecificVbo!(T)) opCast(T : SpecificVbo!(T))() inout {
 		return *cast(typeof(return)*)&this;
 	}
 
@@ -40,9 +40,9 @@ struct generic_vbo {
 
 }
 
-struct specific_vbo(T) {
+struct SpecificVbo(T) {
 
-	generic_vbo vbo_;
+	GenericVbo vbo_;
 
 	alias vbo_ this;
 
@@ -75,35 +75,35 @@ struct specific_vbo(T) {
 		resize(0);
 	}
 
-	auto map_read_only() {
+	auto mapReadOnly() {
 		bind(GL_ARRAY_BUFFER);
 		auto p = cast(const T *) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
-		return vbo_mapping!(const T)(p[0..size()]);
+		return VboMapping!(const T)(p[0..size()]);
 	}
 
-	auto map_write_only() {
+	auto mapWriteOnly() {
 		bind(GL_ARRAY_BUFFER);
 		auto p = cast(T *) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
-		return vbo_mapping!(T)(p[0..size()]);
+		return VboMapping!(T)(p[0..size()]);
 	}
 
-	auto map_read_write() {
+	auto mapReadWrite() {
 		bind(GL_ARRAY_BUFFER);
 		auto p = cast(T *) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
-		return vbo_mapping!(T)(p[0..size()]);
+		return VboMapping!(T)(p[0..size()]);
 	}
 
 }
 
-template vbo(T) {
+template Vbo(T) {
 	static if (is(T == void)) {
-		alias generic_vbo vbo;
+		alias GenericVbo Vbo;
 	} else {
-		alias specific_vbo!T vbo;
+		alias SpecificVbo!T Vbo;
 	}
 }
 
-struct vbo_mapping(T) {
+struct VboMapping(T) {
 
 	private T[] data_;
 
