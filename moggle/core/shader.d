@@ -45,22 +45,24 @@ struct Shader {
 		return cast(ShaderType)t;
 	}
 
-	static Shader fromSource(ShaderType t, const(char)* source) {
+	static Shader fromSource(ShaderType t, const(char)[] source_code) {
 		auto s = Shader(t);
-		s.load(source);
+		s.load(source_code);
 		s.compile();
 		return s;
 	}
 
 	static Shader fromFile(ShaderType t, in char[] file_name) {
 		auto s = Shader(t);
-		s.load((cast(char[])read(file_name)).ptr);
+		s.load(cast(char[])read(file_name));
 		s.compile();
 		return s;
 	}
 
-	void load(const(char)* source) {
-		glShaderSource(id_, 1, &source, null);
+	void load(const(char)[] source_code) {
+		const char* s = source_code.ptr;
+		const GLint n = cast(int)source_code.length;
+		glShaderSource(id_, 1, &s, &n);
 	}
 
 	void try_compile() {
