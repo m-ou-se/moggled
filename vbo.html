@@ -100,7 +100,8 @@ Uses glGetBufferParameteriv with GL_BUFFER_SIZE, and therefore bind()s this Vbo 
 </dt>
 <dd>Map the contents of the Vbo in our own memory, temporarily
 <br><br>
-Will return an object that behaves like a T[] (or const(T)[], for the read-only version),
+<b>Returns:</b><br>
+An object that behaves like a T[] (or const(T)[], for the read-only version),
 	and reflects the contents of the Vbo.
 	After this object is destructed, slices in that piece of memory are no longer valid.
 
