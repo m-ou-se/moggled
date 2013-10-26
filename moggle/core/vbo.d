@@ -116,7 +116,7 @@ struct SpecificVbo(T) {
 
 	/++ Map the contents of the Vbo in our own memory, temporarily
 
-	Will return an object that behaves like a T[] (or const(T)[], for the read-only version),
+	Returns: An object that behaves like a T[] (or const(T)[], for the read-only version),
 	and reflects the contents of the Vbo.
 	After this object is destructed, slices in that piece of memory are no longer valid.
 
