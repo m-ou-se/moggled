@@ -19,7 +19,7 @@ GLVersion loadOpenGL() {
 	return DerelictGL3.reload();
 }
 
-class GlError : Exception {
+class GLError : Exception {
 	this(string func, string what, string file = __FILE__, size_t line = __LINE__) {
 		super(func ~ ": " ~ what, file, line);
 	}
@@ -41,7 +41,7 @@ debug {
 
 	void check_error(string file, size_t line, string func) {
 		auto e = glGetError();
-		if (e != GL_NO_ERROR) throw new GlError(func, constant_names[e], file, line);
+		if (e != GL_NO_ERROR) throw new GLError(func, constant_names[e], file, line);
 	}
 
 	auto wrap(alias glSomething)(ParameterTypeTuple!glSomething parameters, string file = __FILE__, size_t line = __LINE__)
