@@ -29,28 +29,25 @@ glGenVertexArrays is automatically called the first time bind() is called.<br><b
 </dd>
 <dt class="d_decl"><a name=".Vao.create"></a>void <a name="create"></a><span class="ddoc_psymbol">create</span>();
 </dt>
-<dd>Force the creation of a OpenGL Vao, or do nothing if already created.<br><br>
+<dd>Force the creation of a OpenGL Vao, or do nothing if already created. (Calls glGenVertexArrays.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".Vao.destroy"></a>void <a name="destroy"></a><span class="ddoc_psymbol">destroy</span>();
 </dt>
-<dd>Destroy the OpenGL Vao and reset the id back to 0.<br><br>
+<dd>Destroy the OpenGL Vao and reset the id back to 0. (Calls glDeleteVertexArrays.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".Vao.bind"></a>void <a name="bind"></a><span class="ddoc_psymbol">bind</span>();
 </dt>
-<dd>Create the OpenGL Vao, if needed, and call glBindVertexArray on it.<br><br>
+<dd>Create the OpenGL Vao, if needed, and <a name="bind"></a><span class="ddoc_psymbol">bind</span> it. (Calls glBindVertexArray.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".Vao.attribute"></a>void <a name="attribute"></a><span class="ddoc_psymbol">attribute</span>()(GLuint <i>index</i>, ref GenericVbo <i>vbo</i>, AttributeParameters <i>parameters</i>);
 <br><a name=".Vao.attribute"></a>void <a name="attribute"></a><span class="ddoc_psymbol">attribute</span>(T)(GLuint <i>index</i>, ref SpecificVbo!(T) <i>vbo</i>);
 </dt>
-<dd>Add or change an <a name="attribute"></a><span class="ddoc_psymbol">attribute</span>.
+<dd>Add or change an <a name="attribute"></a><span class="ddoc_psymbol">attribute</span>. (Calls glEnableVertexAttribArray and glVertexAttribPointer.)
 <br><br>
-This calls glEnableVertexAttribArray and glVertexAttribPointer.
-<br><br>
-
-	The second version automatically deduces the parameters for
+The second version automatically deduces the parameters for
 	glVertexAttribPointer using attributeParametersFor!T.<br><br>
 
 </dd>

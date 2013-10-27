@@ -120,12 +120,12 @@ glCreateProgram is automatically called the first time anything is done with the
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.create"></a>void <a name="create"></a><span class="ddoc_psymbol">create</span>();
 </dt>
-<dd>Force the creation of a OpenGL ShaderProgram, or do nothing if already created.<br><br>
+<dd>Force the creation of a OpenGL ShaderProgram, or do nothing if already created. (Calls glCreateProgram.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.destroy"></a>void <a name="destroy"></a><span class="ddoc_psymbol">destroy</span>();
 </dt>
-<dd>Destroy the OpenGL Vao and reset the id back to 0.<br><br>
+<dd>Destroy the OpenGL Vao and reset the id back to 0. (Calls glDeleteProgram.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.clear"></a>void <a name="clear"></a><span class="ddoc_psymbol">clear</span>();
@@ -145,7 +145,7 @@ glCreateProgram is automatically called the first time anything is done with the
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.tryLink"></a>void <a name="tryLink"></a><span class="ddoc_psymbol">tryLink</span>();
 </dt>
-<dd>Try to link the ShaderProgram, check linked() to see if it succeeded.<br><br>
+<dd>Try to link the ShaderProgram, check linked() to see if it succeeded. (Calls glLinkProgram.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.link"></a>void <a name="link"></a><span class="ddoc_psymbol">link</span>();
@@ -158,22 +158,22 @@ ShaderCompilationError containing the error log on failure.<br><br>
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.linked"></a>const bool <a name="linked"></a><span class="ddoc_psymbol">linked</span>();
 </dt>
-<dd>Check if the ShaderProgram is succesfully <a name="linked"></a><span class="ddoc_psymbol">linked</span>.<br><br>
+<dd>Check if the ShaderProgram is succesfully <a name="linked"></a><span class="ddoc_psymbol">linked</span>. (Calls glGetProgramiv with GL_LINK_STATUS.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.log"></a>const string <a name="log"></a><span class="ddoc_psymbol">log</span>();
 </dt>
-<dd>The <a name="log"></a><span class="ddoc_psymbol">log</span> of errors for when linking fails.<br><br>
+<dd>The <a name="log"></a><span class="ddoc_psymbol">log</span> of errors for when linking fails. (Calls glGetProgramInfoLog.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.use"></a>void <a name="use"></a><span class="ddoc_psymbol">use</span>();
 </dt>
-<dd>Call glUseProgram(id).<br><br>
+<dd>Use this ShaderProgram. (Calls glUseProgram.)<br><br>
 
 </dd>
 <dt class="d_decl"><a name=".ShaderProgram.uniform"></a>Uniform!(T) <a name="uniform"></a><span class="ddoc_psymbol">uniform</span>(T)(const(char)* <i>name</i>);
 </dt>
-<dd>Look up a <a name="uniform"></a><span class="ddoc_psymbol">uniform</span> variable by its name. (Uses glGetUniformLocation.)<br><br>
+<dd>Look up a <a name="uniform"></a><span class="ddoc_psymbol">uniform</span> variable by its name. (Calls glGetUniformLocation.)<br><br>
 
 </dd>
 </dl>
