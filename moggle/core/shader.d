@@ -133,13 +133,13 @@ struct ShaderProgram {
 
 	@disable this(this);
 
-	/// Force the creation of a OpenGL ShaderProgram, or do nothing if already created.
+	/// Force the creation of a OpenGL ShaderProgram, or do nothing if already created. (Calls glCreateProgram.)
 	void create() {
 		if (!id_) id_ = glCreateProgram();
 		assert(id_, "glCreateProgram did not generate a shader program.");
 	}
 
-	/// Destroy the OpenGL Vao and reset the id back to 0.
+	/// Destroy the OpenGL Vao and reset the id back to 0. (Calls glDeleteProgram.)
 	void destroy() {
 		glDeleteProgram(id_);
 		id_ = 0;
@@ -166,7 +166,7 @@ struct ShaderProgram {
 		glBindAttribLocation(id_, attribute, name);
 	}
 
-	/// Try to link the ShaderProgram, check linked() to see if it succeeded.
+	/// Try to link the ShaderProgram, check linked() to see if it succeeded. (Calls glLinkProgram.)
 	void tryLink() {
 		glLinkProgram(id_);
 	}
@@ -180,14 +180,14 @@ struct ShaderProgram {
 		if (!linked()) throw new ShaderCompilationError("glLinkProgram: Unable to link program:\n" ~ log());
 	}
 
-	/// Check if the ShaderProgram is succesfully linked.
+	/// Check if the ShaderProgram is succesfully linked. (Calls glGetProgramiv with GL_LINK_STATUS.)
 	bool linked() const {
 		GLint status;
 		glGetProgramiv(id, GL_LINK_STATUS, &status);
 		return status != GL_FALSE;
 	}
 
-	/// The log of errors for when linking fails.
+	/// The log of errors for when linking fails. (Calls glGetProgramInfoLog.)
 	string log() const {
 		GLint log_size;
 		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &log_size);
@@ -196,12 +196,12 @@ struct ShaderProgram {
 		return cast(string)log;
 	}
 
-	/// Call glUseProgram(id).
+	/// Use this ShaderProgram. (Calls glUseProgram.)
 	void use() {
 		glUseProgram(id_);
 	}
 
-	/// Look up a uniform variable by its name. (Uses glGetUniformLocation.)
+	/// Look up a uniform variable by its name. (Calls glGetUniformLocation.)
 	Uniform!T uniform(T)(const(char)* name) {
 		create();
 		return Uniform!T(glGetUniformLocation(id_, name));

@@ -26,13 +26,13 @@ struct Vao {
 	/// ditto
 	bool opCast(T : bool)() const { return created; }
 
-	/// Force the creation of a OpenGL Vao, or do nothing if already created.
+	/// Force the creation of a OpenGL Vao, or do nothing if already created. (Calls glGenVertexArrays.)
 	void create() {
 		if (!id_) glGenVertexArrays(1, &id_);
 		assert(id_, "glGenVertexArrays did not generate a vertex array.");
 	}
 
-	/// Destroy the OpenGL Vao and reset the id back to 0.
+	/// Destroy the OpenGL Vao and reset the id back to 0. (Calls glDeleteVertexArrays.)
 	void destroy() {
 		glDeleteVertexArrays(1, &id_);
 		id_ = 0;
@@ -41,7 +41,7 @@ struct Vao {
 	/// ditto
 	~this() { destroy(); }
 
-	/// Create the OpenGL Vao, if needed, and call glBindVertexArray on it.
+	/// Create the OpenGL Vao, if needed, and bind it. (Calls glBindVertexArray.)
 	void bind() {
 		create();
 		glBindVertexArray(id_);
@@ -49,9 +49,7 @@ struct Vao {
 
 	@disable this(this);
 
-	/** Add or change an attribute.
-
-	This calls glEnableVertexAttribArray and glVertexAttribPointer.
+	/** Add or change an attribute. (Calls glEnableVertexAttribArray and glVertexAttribPointer.)
 
 	The second version automatically deduces the parameters for
 	glVertexAttribPointer using attributeParametersFor!T.

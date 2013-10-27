@@ -23,13 +23,13 @@ struct GenericVbo {
 	/// ditto
 	bool opCast(T : bool)() const { return created; }
 
-	/// Force the creation of a OpenGL Vbo, or do nothing if already created.
+	/// Force the creation of a OpenGL Vbo, or do nothing if already created. (Calls glGenBuffers.)
 	void create() {
 		if (!id_) glGenBuffers(1, &id_);
 		assert(id_, "glGenBuffers did not generate a buffer.");
 	}
 
-	/// Destroy the OpenGL Vbo and reset the id back to 0.
+	/// Destroy the OpenGL Vbo and reset the id back to 0. (Calls glDeleteBuffers.)
 	void destroy() {
 		glDeleteBuffers(1, &id_);
 		id_ = 0;
@@ -40,7 +40,7 @@ struct GenericVbo {
 		destroy();
 	}
 
-	/// Create the OpenGL Vbo, if needed, and call glBindBuffer on it.
+	/// Create the OpenGL Vbo, if needed, and bind it. (Calls glBindBuffer.)
 	void bind(GLenum buffer) {
 		create();
 		glBindBuffer(buffer, id_);
@@ -68,7 +68,7 @@ struct SpecificVbo(T) {
 
 	alias vbo_ this;
 
-	/++ Store the given data in the Vbo.
+	/++ Store the given data in the Vbo. (Calls glBufferData.)
 
 	Examples:
 	---
@@ -85,7 +85,7 @@ struct SpecificVbo(T) {
 		glBufferData(GL_ARRAY_BUFFER, data_.length * T.sizeof, data_.ptr, usage);
 	}
 
-	/++ Allocate a OpenGL Vbo with space for n elements.
+	/++ Allocate a OpenGL Vbo with space for n elements. (Calls glBufferData with null.)
 
 	The contents of the Vbo are uninitialized and thus undefined.
 	+/
@@ -98,10 +98,7 @@ struct SpecificVbo(T) {
 		glBufferData(GL_ARRAY_BUFFER, size_ * T.sizeof, null, usage);
 	}
 
-	/++ The number of elements stored in this Vbo.
-
-	Uses glGetBufferParameteriv with GL_BUFFER_SIZE, and therefore bind()s this Vbo as GL_ARRAY_BUFFER.
-	+/
+	/// The number of elements stored in this Vbo. (Calls glGetBufferParameteriv with GL_BUFFER_SIZE.)
 	size_t size() {
 		GLint s;
 		bind(GL_ARRAY_BUFFER);
@@ -114,11 +111,12 @@ struct SpecificVbo(T) {
 		resize(0, usage);
 	}
 
-	/++ Map the contents of the Vbo in our own memory, temporarily
+	/++ Map the contents of the Vbo in our own memory, temporarily. (Calls glMapBuffer.)
 
 	Returns: An object that behaves like a T[] (or const(T)[], for the read-only version),
 	and reflects the contents of the Vbo.
-	After this object is destructed, slices in that piece of memory are no longer valid.
+	After this object is destructed, slices in that piece of memory are no longer valid
+	(because glUnmapBuffer is then called).
 
 	Examples:
 	---
