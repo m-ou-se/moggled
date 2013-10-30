@@ -54,7 +54,7 @@ struct Vao {
 	The second version automatically deduces the parameters for
 	glVertexAttribPointer using attributeParametersFor!T.
 	*/
-	void attribute()(GLuint index, ref GenericVbo vbo, AttributeParameters parameters) {
+	void setAttribute()(GLuint index, ref GenericVbo vbo, AttributeParameters parameters) {
 		bind();
 		vbo.bind(GL_ARRAY_BUFFER);
 		glEnableVertexAttribArray(index);
@@ -62,8 +62,8 @@ struct Vao {
 	}
 
 	/// ditto
-	void attribute(T)(GLuint index, ref SpecificVbo!(T) vbo) {
-		attribute(index, vbo, attributeParametersFor!T);
+	void setAttribute(T)(GLuint index, ref SpecificVbo!(T) vbo) {
+		setAttribute(index, vbo, attributeParametersFor!T);
 	}
 
 }
