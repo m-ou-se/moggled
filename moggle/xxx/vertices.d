@@ -122,13 +122,13 @@ final class Vertices {
 	The second version automatically deduces the AttributeParameters
 	using attributeParametersFor!T. (Defined in moggle.core.vao.)
 	+/
-	void setAttribute()(in string name, GenericBuffer buffer, in AttributeParameters parameters) {
-		attributes_[name] = new Attribute(name, buffer, parameters);
+	Attribute setAttribute()(in string name, GenericBuffer buffer, in AttributeParameters parameters) {
+		return attributes_[name] = new Attribute(name, buffer, parameters);
 	}
 
 	/// ditto
-	void setAttribute(T)(in string name, Buffer!T buffer) {
-		setAttribute(name, buffer, attributeParametersFor!T);
+	Attribute setAttribute(T)(in string name, Buffer!T buffer) {
+		return setAttribute(name, buffer, attributeParametersFor!T);
 	}
 
 	/++ Automatically calls setAttribute for each member of the struct T.
