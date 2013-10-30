@@ -66,6 +66,12 @@ struct Vao {
 		setAttribute(index, vbo, attributeParametersFor!T);
 	}
 
+	/// Disable an attribute. (Calls glDisableVertexAttribArray.)
+	void disableAttribute(GLuint index) {
+		bind();
+		glDisableVertexAttribArray(index);
+	}
+
 }
 
 /++ The tuple of parameters for glVertexAttribPointer that specify the type information.
