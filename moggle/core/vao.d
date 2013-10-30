@@ -95,6 +95,11 @@ alias TypeTuple!(GLint, GLenum, bool, GLsizei, const(void)*) AttributeParameters
 Works for GLdouble, GLfloat, GLint, GLuint, GLshort, GLushort, GLbyte, GLubyte,
 Normalized versions of these, and Matrices, Vectors and HVectors of all these.
 
+The second version takes the name the member of T, for when the buffer contains
+an array of T but only a single member of that T is what you want parameters for.
+This automatically sets the stride and the offset to to the correct values
+(T.sizeof and T.member.offsetof, respectively).
+
 Examples:
 ---
 // These two lines do the exact same.
@@ -111,6 +116,12 @@ glVertexAttribPointer(1, 9, GL_FLOAT, false, Matrix3f.sizeof, null);
 glVertexAttribPointer(1, attributeParametersFor!(Vector!(Normalized!ubyte, 4)));
 glVertexAttribPointer(1, 4, GL_UBYTE, true, Vector!(Normalized!ubyte, 4).sizeof, null);
 ---
+---
+struct Vertex { HVector4f position; Vector3f normal; HVector4f color; }
+// These two lines do the exact same.
+glVertexAttribPointer(1, attributeParametersFor!(Vertex, "normal"));
+glVertexAttribPointer(1, 3, GL_FLOAT, false, Vertex.size, cast(const(void)*)Vertex.normal.offsetof);
+---
 +/
 template attributeParametersFor(T) {
 	static if (is(T == HVector!(E, N), E, size_t N)) {
@@ -126,5 +137,12 @@ template attributeParametersFor(T) {
 	enum normalized = is(element_type == Normalized!(base_type), base_type);
 	static if (!normalized) alias element_type base_type;
 	alias TypeTuple!(size, GL_type!base_type, normalized, T.sizeof, null) attributeParametersFor;
+}
+
+/// ditto
+template attributeParametersFor(T, string member) if (is(T == struct)) {
+	alias attributeParametersFor!(typeof(__traits(getMember, T, member))) parameters;
+	enum offset = __traits(getMember, T, member).offsetof;
+	alias TypeTuple!(parameters[0..$-2], T.sizeof, cast(const(void)*)offset) attributeParametersFor;
 }
 
