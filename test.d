@@ -7,6 +7,8 @@ import moggle.core.gl;
 import moggle.core.vbo;
 import moggle.core.vao;
 import moggle.core.shader;
+import moggle.xxx.buffer;
+import moggle.xxx.vertices;
 
 // GLFW is used to create a window.
 import derelict.glfw3.glfw3;
@@ -20,34 +22,37 @@ void main() {
 	glfwMakeContextCurrent(window);
 	loadOpenGL();
 
-	auto vs = Shader.fromSource(ShaderType.vertex, q{
+	scope vs = Shader.fromSource(ShaderType.vertex, q{
 		attribute vec4 position;
 		void main() {
 			gl_Position = position;
 		}
 	});
 
-	auto fs = Shader.fromSource(ShaderType.fragment, q{
+	scope fs = Shader.fromSource(ShaderType.fragment, q{
 		void main() {
 			gl_FragColor = vec4(1, 0, 0, 1);
 		}
 	});
 
-	auto sp = ShaderProgram();
+	scope sp = ShaderProgram();
 	sp.attach(vs);
 	sp.attach(fs);
-	sp.bind_attribute(1, "position");
+	sp.bindAttribute(0, "position");
 	sp.link();
 	sp.use();
 
-	auto b = vbo!HVector4f([
+	scope b = new Buffer!HVector4f([
 		HVector4f(0, 0),
 		HVector4f(0, 1),
-		HVector4f(1, 0)
 	]);
 
-	auto a = vao();
-	a.attribute(1, b);
+	b ~= HVector4f(1, 1);
+
+	b.sync();
+
+	scope a = new Vertices();
+	a.setAttribute("position", b).enable(0);
 	a.bind();
 
 	glClearColor(0.1, 0.3, 0.7, 1);
