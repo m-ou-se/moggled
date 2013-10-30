@@ -161,9 +161,10 @@ struct ShaderProgram {
 	}
 
 	/// Bind an attribute name to a location. (Calls glBindAttribLocation.)
-	void bindAttribute(GLuint attribute, const(char)* name) {
+	void bindAttribute(GLuint attribute, const(char)[] name) {
+		name ~= '\0';
 		create();
-		glBindAttribLocation(id_, attribute, name);
+		glBindAttribLocation(id_, attribute, name.ptr);
 	}
 
 	/// Try to link the ShaderProgram, check linked() to see if it succeeded. (Calls glLinkProgram.)
