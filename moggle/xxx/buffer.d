@@ -4,7 +4,7 @@ import moggle.core.vbo;
 
 /++ Manages a OpenGL vertex buffer object (Vbo).
 
-Contains a Vbo!T object, and a T[], which it can keep in sync.
+Contains both a Vbo!T object and a T[], which it can keep in sync.
 
 Basically, a Vbo!T has data stored in the GPU memory (for OpenGL),
 while the T[] has data stored in the CPU memory (for us).
