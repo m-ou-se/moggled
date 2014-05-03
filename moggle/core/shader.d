@@ -43,7 +43,7 @@ struct Shader {
 	}
 
 	/// Create, load, and compile a shader directly from source code.
-	static Shader fromSource(ShaderType t, const(char)[] source_code) {
+	static Shader fromSource(ShaderType t, in char[] source_code) {
 		auto s = Shader(t);
 		s.load(source_code);
 		s.compile();
@@ -75,7 +75,7 @@ struct Shader {
 	}
 
 	/// Load the source code for the shader.
-	void load(const(char)[] source_code) {
+	void load(in char[] source_code) {
 		const char* s = source_code.ptr;
 		const GLint n = cast(int)source_code.length;
 		glShaderSource(id_, 1, &s, &n);
