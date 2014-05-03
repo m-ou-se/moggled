@@ -230,10 +230,10 @@ struct Uniform(T) {
 	(It calls one of:
 	glUniform1f, glUniform1i, glUniform1ui, glUniform1fv, glUniform2fv,
 	glUniform3fv, glUniform4fv, glUniform1iv, glUniform2iv, glUniform3iv,
-	glUniform4iv, glUniform1uiV, glUniform2uiV, glUniform3uiv, glUniform4uiv,
+	glUniform4iv, glUniform1uiv, glUniform2uiv, glUniform3uiv, glUniform4uiv,
 	glUniformMatrix2fv, glUniformMatrix3fv, glUniformMatrix4fv,
 	glUniformMatrix3x2fv, glUniformMatrix2x3fv, glUniformMatrix4x2fv,
-	glUniformMatrix2x4fv, glUniformMatrix4x3fv,and glUniformMatrix3x4fv.)
+	glUniformMatrix2x4fv, glUniformMatrix4x3fv, and glUniformMatrix3x4fv.)
 
 	Works for GLfloat, GLint, GLuint, Matrices/Vectors/HVectors of GLfloat,
 	both static and dynamic arrays of GLfloat, GLint and GLuint,
