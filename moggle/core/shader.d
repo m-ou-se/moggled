@@ -218,7 +218,7 @@ An object of this type is returned by ShaderProgram.uniform(name).
 +/
 struct Uniform(T) {
 
-	private GLuint location_ = 0;
+	private GLuint id_ = 0;
 
 	/// The location of this Uniform.
 	@property GLuint location() const { return id_; }
@@ -241,15 +241,11 @@ struct Uniform(T) {
 	+/
 	void set(in T value) {
 
-		static if (is(T == T2[length], T2, size_t length)) {
-			enum static_length = length;
-		} else static if (is(T == T2[], T2)) {
+		static if (is(T == T2[], T2)) {
 			size_t length = value.length;
-			enum static_length = 0;
-		} else {
+		} else static if (!is(T == T2[length], T2, size_t length)) {
 			alias T T2;
 			enum length = 1;
-			enum static_length = 1;
 		}
 
 		static if (!is(T2 == Matrix!(base_type, height, width), base_type, size_t height, size_t width)) {
