@@ -1,0 +1,10 @@
+{
+	"name": "MoggleD",
+	"targetType": "library",
+	"description": "Moggle for D - Sexy OpenGL",
+	"license": "GPL-3.0",
+	"authors": ["Mara Bos <m-ou.se@m-ou.se>"],
+	"dependencies": {
+		"derelict-gl3": "~master",
+	},
+}

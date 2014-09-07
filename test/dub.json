@@ -1,0 +1,11 @@
+{
+	"name": "MoggleD Test",
+	"targetType": "executable",
+	"targetName": "test",
+	"license": "GPL-3.0",
+	"authors": ["Mara Bos <m-ou.se@m-ou.se>"],
+	"dependencies": {
+		"moggled": {"version": "~master", "path": ".."},
+		"derelict-glfw3": "~master",
+	},
+}
