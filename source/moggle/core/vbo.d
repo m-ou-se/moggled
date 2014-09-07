@@ -90,7 +90,7 @@ struct SpecificVbo(T) {
 	The contents of the Vbo are uninitialized and thus undefined.
 	+/
 	this(size_t n, GLenum usage = GL_STATIC_DRAW) {
-		resize(n);
+		resize(n, usage);
 	}
 	/// ditto
 	void resize(size_t size_, GLenum usage = GL_STATIC_DRAW) {
