@@ -63,6 +63,7 @@ class Buffer(T) : GenericBuffer {
 		auto m = vbo.mapReadOnly();
 		data.length = m.length;
 		data[] = m[];
+		dirty_ = false;
 	}
 
 }
