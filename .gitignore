@@ -1,4 +1,4 @@
 .*
 !.gitignore
 *.o
-/libmoggled.a
+/libmoggle.a
