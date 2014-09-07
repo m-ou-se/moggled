@@ -22,27 +22,27 @@ void main() {
 	glfwMakeContextCurrent(window);
 	loadOpenGL();
 
-	scope vs = Shader.fromSource(ShaderType.vertex, q{
+	auto vs = Shader.fromSource(ShaderType.vertex, q{
 		attribute vec4 position;
 		void main() {
 			gl_Position = position;
 		}
 	});
 
-	scope fs = Shader.fromSource(ShaderType.fragment, q{
+	auto fs = Shader.fromSource(ShaderType.fragment, q{
 		void main() {
 			gl_FragColor = vec4(1, 0, 0, 1);
 		}
 	});
 
-	scope sp = ShaderProgram();
+	auto sp = ShaderProgram();
 	sp.attach(vs);
 	sp.attach(fs);
 	sp.bindAttribute(0, "position");
 	sp.link();
 	sp.use();
 
-	scope b = new Buffer!HVector4f([
+	auto b = new Buffer!HVector4f([
 		HVector4f(0, 0),
 		HVector4f(0, 1),
 	]);
@@ -51,7 +51,7 @@ void main() {
 
 	b.sync();
 
-	scope a = new Vertices();
+	auto a = new Vertices();
 	a.setAttribute("position", b).enable(0);
 	a.bind();
 
