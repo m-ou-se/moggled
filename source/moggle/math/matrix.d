@@ -235,7 +235,7 @@ struct Matrix(T, size_t N, size_t M = N) {
 
 		// M*S, M/S
 		auto opBinary(string op, T2)(in T2 v) const
-		if ((op == "*" || op == "/") && !isInstanceOf!(Matrix, T2)) {
+		if ((op == "*" || op == "/") && !isInstanceOf!(moggle.math.matrix.Matrix, T2)) {
 			Matrix!(Unqual!(typeof(this[0] * v)), N, M) result;
 			foreach (i; 0 .. N*M) mixin("result[i] = this[i] " ~ op ~ " v;");
 			return result;
@@ -243,7 +243,7 @@ struct Matrix(T, size_t N, size_t M = N) {
 
 		// S*M
 		auto opBinaryRight(string op, T2)(in T2 v) const
-		if (op == "*" && !isInstanceOf!(Matrix, T2)) {
+		if (op == "*" && !isInstanceOf!(moggle.math.matrix.Matrix, T2)) {
 			Matrix!(Unqual!(typeof(v * this[0])), N, M) result;
 			foreach (i; 0 .. N*M) mixin("result[i] = v " ~ op ~ " this[i];");
 			return result;
@@ -251,7 +251,7 @@ struct Matrix(T, size_t N, size_t M = N) {
 
 		// M*=S, M/=S
 		ref Matrix opOpAssign(string op, T2)(in T2 v)
-		if ((op == "*" || op == "/") && !isInstanceOf!(Matrix, T2)) {
+		if ((op == "*" || op == "/") && !isInstanceOf!(moggle.math.matrix.Matrix, T2)) {
 			foreach (i; 0 .. N*M) mixin("this[i] " ~ op ~ "= v;");
 			return this;
 		}
