@@ -2,3 +2,5 @@
 !.gitignore
 *.o
 /libmoggle.a
+/dub.selections.json
+/test/dub.selections.json
