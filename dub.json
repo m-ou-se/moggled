@@ -7,4 +7,10 @@
 	"dependencies": {
 		"derelict-gl3": "~master",
 	},
+	"buildTypes": {
+		"docs": {
+			"dflags": ["-Dddoc"],
+			"sourceFiles": ["doc/doc.ddoc"]
+		}
+	}
 }
