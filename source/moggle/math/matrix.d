@@ -133,6 +133,7 @@ struct Matrix(T, size_t N, size_t M = N) {
 				return this / length;
 			}
 
+			static if (!isIntegral!T)
 			void normalize() {
 				this /= length;
 			}
